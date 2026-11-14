@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VIN Repair and Resale Analyzer</title>
+<style>
+:root{--bg:#e8ecef;--card:#fff;--ink:#14202b;--mute:#5d6b77;--line:#d3dae0;--field:#f3f6f8;--tag:#f2b705;--tagink:#241c00;--good:#146c3f;--bad:#a4231b;--badbg:#f9d9d6;--c1:#2563eb;--c2:#0d9488;--c3:#d97706;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151b;--card:#17202a;--ink:#e8edf1;--mute:#93a1ad;--line:#2a3641;--field:#101820;--good:#6ee7a0;--bad:#fca5a0;--badbg:#3b1512;--c1:#60a5fa;--c2:#2dd4bf;--c3:#fbbf24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f151b;--card:#17202a;--ink:#e8edf1;--mute:#93a1ad;--line:#2a3641;--field:#101820;--good:#6ee7a0;--bad:#fca5a0;--badbg:#3b1512;--c1:#60a5fa;--c2:#2dd4bf;--c3:#fbbf24;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:22px 16px 48px}
+h1{font-size:26px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 18px;max-width:66ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:16px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:4px}.full{grid-column:1/-1}
+label{font-size:13px;color:var(--mute)}
+input,textarea{font:inherit;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink)}
+textarea{min-height:60px;resize:vertical}
+#vin{font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+button,.btn{font:inherit;font-weight:600;border:0;border-radius:8px;padding:11px 16px;cursor:pointer;background:var(--ink);color:var(--bg);text-decoration:none;display:inline-block}
+button:disabled{opacity:.5;cursor:wait}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink);font-size:14px;cursor:pointer}
+.seg input{width:auto}
+.hint{font-size:12.5px;margin:6px 0 0;color:var(--mute)}
+.ok{color:var(--good)}.no{color:var(--bad)}
+.err{background:var(--badbg);color:var(--bad);padding:10px 12px;border-radius:8px;margin:0 0 16px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:8px}
+.thumbs img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.car{font-size:20px;font-weight:700;margin:0 0 4px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:480px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;color:var(--mute);font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}
+tfoot td{font-weight:700;border-bottom:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px}
+.box span{display:block;font-size:12.5px;color:var(--mute)}.box b{font-size:21px}
+.ladder .r{display:grid;grid-template-columns:160px 1fr 84px;gap:10px;align-items:center;margin:8px 0;font-size:14px}
+@media(max-width:560px){.ladder .r{grid-template-columns:100px 1fr 74px;font-size:13px}}
+.track{height:14px;background:var(--field);border-radius:6px;overflow:hidden}.track i{display:block;height:100%;border-radius:6px}
+.ladder .r b{text-align:right}
+.tag{background:var(--tag);color:var(--tagink);border-radius:10px;padding:14px 16px;margin-top:14px}
+.tag b{font-size:28px;line-height:1.2}.tag span{display:block;font-size:13px;font-weight:600}.tag small{display:block;font-size:12.5px;margin-top:2px}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+details{margin-top:12px}summary{cursor:pointer;font-weight:600;font-size:14px}
+.note{color:var(--mute);font-size:12.5px}
+td a{color:var(--c1);font-weight:600;margin-left:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>VIN repair and resale analyzer</h1>
+  <p class="sub">Paste the VIN, add the auction photos and the price. The app works out the damage, the repair cost with original and non-original parts, every fee up to the road-ready price, and how that compares with retail prices.</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="f full"><label for="vin">VIN (17 characters)</label><input id="vin" maxlength="17" autocomplete="off" spellcheck="false" placeholder="e.g. 4T1B11HK5KU123456"><p class="hint" id="vinhint">Letters I, O and Q are never used in a VIN.</p></div>
+      <div class="f full"><label>Auction status</label>
+        <div class="seg"><label><input type="radio" name="st" value="sold" checked>Already sold</label><label><input type="radio" name="st" value="live">Still on auction</label></div></div>
+      <div class="f"><label for="price" id="plabel">Final sold price, no fees ($)</label><input id="price" type="number" min="0" inputmode="numeric" value="3000"></div>
+      <div class="f"><label for="km">Mileage (km), if you know it</label><input id="km" type="number" min="0" inputmode="numeric" placeholder="Read from photos if empty"></div>
+      <div class="f full"><label for="ph">Add car photos (optional, up to 4)</label><input id="ph" type="file" accept="image/*" multiple><div class="thumbs" id="thumbs"></div><p class="hint">Claude finds the damage and reads the odometer from the photos. Without photos you still get a repair estimate for typical damage. Copart and IAAI don’t allow automatic photo lookups, so add the listing photos yourself: choose files, or copy an image and paste it here with Ctrl+V. <a id="vinsearch" hidden target="_blank" rel="noopener">Search this VIN for photos</a></p></div>
+      
+    </div>
+    <details><summary>Fees and import taxes (editable estimates)</summary>
+      <div class="row" style="margin-top:10px" id="set"></div>
+      <p class="hint">Rough defaults. Replace them with your forwarder’s real numbers for a closer result.</p>
+    </details>
+    <p style="margin:14px 0 0"><button id="go">Analyze car</button></p>
+  </div>
+
+  <div id="out"></div>
+  <p class="note">Prices and damage are AI estimates for planning, not live listings or a mechanic’s quote. Get a repair quote and check real adverts before you bid.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const eur=n=>new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
+const usd=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const n=x=>{x=Number(x);return isFinite(x)&&x>0?x:0};
+const SET=[["fx","Euros per US dollar",0.87,"0.01"],["feePct","Auction buyer fee (% of price)",10],["fixed","Gate, bid and other fixed fees ($)",650],["inland","US inland transport ($)",450],["freight","Ocean freight ($)",1300],["ins","Shipping insurance ($)",120],["port","Port and forwarder fees ($)",350],["duty","Customs duty (%)",10],["vat","VAT (%)",21],["local","Local transport, registration and inspection (€)",650],["other","Cleaning, ads and other (€)",200],["target","Target profit (€)",1500]];
+SET.forEach(([id,l,d,st])=>{const f=document.createElement("div");f.className="f";f.innerHTML="<label for=\"s_"+id+"\">"+l+"</label><input id=\"s_"+id+"\" type=\"number\" min=\"0\" step=\""+(st||"any")+"\" value=\""+d+"\">";$("set").appendChild(f)});
+const sv=id=>n($("s_"+id).value);
+document.querySelectorAll("input[name=st]").forEach(r=>r.onchange=()=>{$("plabel").textContent=r.value==="sold"?"Final sold price, no fees ($)":"Price you want to pay for the car, no fees ($)"});
+const T={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};
+const W=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
+function checkVin(v){
+  if(v.length!==17)return{ok:false,msg:v.length+" of 17 characters"};
+  if(/[IOQ]/.test(v)||!/^[A-Z0-9]+$/.test(v))return{ok:false,msg:"Contains characters that can’t be in a VIN"};
+  let s=0;for(let i=0;i<17;i++){const c=v[i];s+=(/\d/.test(c)?+c:T[c])*W[i]}
+  const d=s%11===10?"X":String(s%11);
+  if(/[1-5]/.test(v[0]))return d===v[8]?{ok:true,msg:"Valid VIN, check digit matches"}:{ok:false,msg:"Check digit doesn’t match, so the VIN is probably mistyped"};
+  return{ok:true,msg:"Format is valid (check digit is only verified for North American VINs)"};
+}
+$("vin").addEventListener("input",e=>{
+  const v=e.target.value.toUpperCase().replace(/\s/g,"");e.target.value=v;const h=$("vinhint");
+  if(!v){h.className="hint";h.textContent="Letters I, O and Q are never used in a VIN.";return}
+  const r=checkVin(v);h.textContent=r.msg;h.className="hint "+(r.ok?"ok":"no");
+  const a=$("vinsearch");a.hidden=!r.ok;if(r.ok)a.href="https://www.google.com/search?tbm=isch&q="+v;
+});
+let photos=[];
+function shrink(f){return new Promise(res=>{const u=URL.createObjectURL(f),im=new Image();
+  im.onload=()=>{const s=Math.min(1,1024/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);
+    c.toBlob(b=>{if(!b)return res(null);const r=new FileReader();r.onload=()=>res({blob:b,url:r.result});r.readAsDataURL(b)},"image/jpeg",.8)};
+  im.onerror=()=>res(null);im.src=u})}
+async function addFiles(fs){
+  const room=4-photos.length;if(room<=0)return;
+  photos=photos.concat((await Promise.all(fs.slice(0,room).map(shrink))).filter(Boolean));
+  $("thumbs").innerHTML=photos.map(p=>"<img alt=\"Car photo\" src=\""+p.url+"\">").join("");
+}
+$("ph").onchange=e=>{photos=[];addFiles([...e.target.files])};
+document.addEventListener("paste",e=>{const fs=[...(e.clipboardData&&e.clipboardData.items||[])].filter(i=>i.type.startsWith("image/")).map(i=>i.getAsFile()).filter(Boolean);if(fs.length)addFiles(fs)});
+function landed(price){
+  const a=price*(1+sv("feePct")/100)+sv("fixed"),ship=sv("inland")+sv("freight")+sv("ins")+sv("port"),cv=(a+ship)*sv("fx");
+  const duty=cv*sv("duty")/100,vat=(cv+duty)*sv("vat")/100;
+  return{car:price*sv("fx"),fees:(a-price)*sv("fx"),ship:ship*sv("fx"),duty,vat,local:sv("local"),total:cv+duty+vat+sv("local"),cv};
+}
+function prompt(vin,km,nph){
+  return "You are a used-car repair and market pricing assistant for a car importer in Lithuania who buys damaged cars at Copart and IAAI in the USA.\n"+
+"VIN: "+vin+"\nMileage: "+(km?km+" km":"unknown (read the odometer from the photos if visible)")+"\n"+
+(nph?nph+" auction photo(s) of this exact car are attached. Describe the visible damage by area and severity, and flag possible structural, airbag, flood or fire damage. Read the odometer if visible.\n":"No photos were provided, so assume typical moderate front-end collision damage and say so in notes.\n")+
+"\nTasks: 1) Decode the VIN as best you can (make, model, year, engine, body, trim) with confidence, and list the equipment packages this exact trim most likely has and whether it is a special, limited or unusual edition. 2) List repair items needed with realistic 2026 EUR prices for Lithuania: parts with original (OEM) parts, parts with non-original aftermarket parts, and labor/paint. Include paint and safety items. 3) Estimate the EUR retail price of the fully repaired car with clean EU title at this mileage as typically listed on Autoplius.lt and Mobile.de: low, typical, high, priced for this exact trim, equipment and edition. 4) Give 3 comparable typical EUR retail prices (repaired, clean title, similar mileage): the plain base version of the same model and year, this exact car, and the special edition or best-equipped version if one exists. Be realistic and conservative.\n"+
+"Reply with only JSON in this exact shape: {\"vehicle\":{\"make\":\"\",\"model\":\"\",\"year\":0,\"engine\":\"\",\"body\":\"\",\"confidence\":\"high|medium|low\",\"trim\":\"\",\"packages\":[\"\"],\"special_edition\":{\"is\":false,\"name\":\"\",\"note\":\"\"},\"notes\":\"\"},\"damage\":{\"summary\":\"\",\"severity\":\"minor|moderate|severe\",\"structural\":false},\"odometer_km\":null,\"repairs\":[{\"item\":\"\",\"oem\":0,\"aftermarket\":0,\"labor\":0}],\"retail\":{\"autoplius\":{\"low\":0,\"typical\":0,\"high\":0},\"mobile_de\":{\"low\":0,\"typical\":0,\"high\":0}},\"comparables\":[{\"label\":\"\",\"typical\":0}],\"comparison_note\":\"\",\"notes\":\"\"}";
+}
+async function run(){
+  const vin=$("vin").value.trim(),c=checkVin(vin),out=$("out");
+  if(!c.ok){out.innerHTML="<p class=\"err\">"+esc(c.msg)+". Enter a full 17-character VIN.</p>";return}
+  const price=n($("price").value);
+  if(!price){out.innerHTML="<p class=\"err\">Enter the car price without fees.</p>";return}
+  const btn=$("go");btn.disabled=true;btn.textContent="Analyzing…";
+  out.innerHTML="<div class=\"card\">Decoding the VIN"+(photos.length?", reading the photos":"")+" and estimating repairs and prices. This takes a few seconds.</div>";
+  try{
+    const sample=await claude.use("sample");if(!sample)throw{code:"none"};
+    let imgs=[];try{if(photos.length&&(await sample.limits()).images)imgs=photos.map(p=>p.blob)}catch(e){}
+    const km=n($("km").value);
+    const d=await sample.json(prompt(vin,km,imgs.length),imgs.length?{images:imgs,modelTier:"default"}:{modelTier:"default"});
+    show(d,price,km,document.querySelector("input[name=st]:checked").value);
+  }catch(e){
+    const m=e&&e.code==="none"?"AI analysis is only available when this page is opened in Claude.":e&&e.code==="not_granted"?"Permission was declined. Choose Analyze car again and allow it.":e&&e.code==="rate_limited"?"Too many requests. Wait a minute and try again.":"The analysis failed. Check the VIN and photos, then try again.";
+    out.innerHTML="<p class=\"err\">"+esc(m)+"</p>";
+  }
+  btn.disabled=false;btn.textContent="Analyze car";
+}
+function show(d,price,km,st){
+  const v=d.vehicle||{},dm=d.damage||{},rp=(d.repairs||[]).map(r=>({item:r.item,oem:n(r.oem),am:n(r.aftermarket),lab:n(r.labor)}));
+  if(!rp.length)throw{code:"bad"};
+  const L=landed(price),sum=k=>rp.reduce((a,r)=>a+r[k],0),lab=sum("lab");
+  const rO=sum("oem")+lab,rA=sum("am")+lab,ex=sv("other"),tO=L.total+rO+ex,tA=L.total+rA+ex;
+  const ap=d.retail&&d.retail.autoplius||{},md=d.retail&&d.retail.mobile_de||{};
+  const pa=n(ap.typical),pm=n(md.typical),ref=pa||pm,ask=Math.round(ref*.92/100)*100,mx=Math.max(tO,tA,pa,pm,ask,1);
+  const odo=km||n(d.odometer_km),m=(1+sv("duty")/100)*(1+sv("vat")/100),fx=sv("fx"),pct=1+sv("feePct")/100;
+  const fixedShip=sv("fixed")+sv("inland")+sv("freight")+sv("ins")+sv("port");
+  const maxBid=rep=>Math.max(0,Math.floor((((ask-sv("target")-sv("local")-ex-rep)/m)/fx-fixedShip)/pct/50)*50);
+  const bars=[["Your cost, original parts",tO,"--c1"],["Your cost, non-original parts",tA,"--c2"],["Suggested asking price",ask,"--c3"],["Autoplius retail",pa,"--ink"],["Mobile.de retail",pm,"--ink"]]
+    .map(b=>"<div class=\"r\"><span>"+b[0]+"</span><div class=\"track\"><i style=\"width:"+(b[1]/mx*100)+"%;background:var("+b[2]+")\"></i></div><b>"+eur(b[1])+"</b></div>").join("");
+  const cn=[v.year,v.make,v.model].filter(Boolean).join(" "),sl=(t,k)=>"https://www.google.com/search?tbm=shop&q="+encodeURIComponent(k+" "+t+" "+cn),rows=rp.map(r=>"<tr><td>"+esc(r.item)+"</td><td class=\"n\">"+eur(r.oem)+"</td><td class=\"n\">"+eur(r.am)+"</td><td class=\"n\">"+eur(r.lab)+"</td><td class=\"n\"><a href=\""+sl(r.item,"genuine OEM")+"\" target=\"_blank\" rel=\"noopener\">Original</a><a href=\""+sl(r.item,"aftermarket")+"\" target=\"_blank\" rel=\"noopener\">Non-original</a></td></tr>").join("");
+  const cost=[["Car price ("+(st==="sold"?"sold":"your price")+", "+usd(price)+")",L.car],["Auction fees",L.fees],["Shipping, insurance and port",L.ship],["Customs duty",L.duty],["VAT",L.vat],["Local transport and registration",L.local]]
+    .map(c=>"<tr><td>"+c[0]+"</td><td class=\"n\">"+eur(c[1])+"</td></tr>").join("");
+  const gp=x=>eur(ask-x);
+  const se=v.special_edition||{},pk=(v.packages||[]).filter(Boolean).slice(0,8);
+  const eqHtml="<p style=\"margin:12px 0 0\"><b>Version:</b> "+esc(v.trim||"Trim not identified")+(se.is?" · <b>Special edition: "+esc(se.name||"yes")+"</b>":" · Standard production model")+"</p>"+(pk.length?"<p class=\"hint\" style=\"margin:4px 0 0\">Likely equipment: "+esc(pk.join(", "))+" (confirm with the build sheet or the seller)</p>":"")+(se.note?"<p class=\"hint\">"+esc(se.note)+"</p>":"");
+  const cp=(d.comparables||[]).map(c=>({l:c.label,p:n(c.typical)})).filter(c=>c.l&&c.p),cmx=Math.max(...cp.map(c=>c.p),1);
+  const cpHtml=cp.length?"<div class=\"card\"><h2>How this car compares with similar cars</h2><div class=\"ladder\">"+cp.map(c=>"<div class=\"r\"><span>"+esc(c.l)+"</span><div class=\"track\"><i style=\"width:"+(c.p/cmx*100)+"%;background:var(--c2)\"></i></div><b>"+eur(c.p)+"</b></div>").join("")+"</div>"+(d.comparison_note?"<p class=\"hint\">"+esc(d.comparison_note)+"</p>":"")+"</div>":"";
+  const car=[v.year,v.make,v.model].filter(Boolean).join(" ")||"this car",q=encodeURIComponent(car);
+  $("out").innerHTML=
+"<div class=\"card\"><p class=\"car\">"+esc([v.year,v.make,v.model].filter(Boolean).join(" ")||"Vehicle")+"</p><p class=\"note\" style=\"margin:0\">"+esc([v.engine,v.body].filter(Boolean).join(", "))+" · VIN decode confidence: "+esc(v.confidence||"unknown")+(odo?" · Mileage "+odo.toLocaleString("en-US")+" km":" · Mileage not found, enter it above for a closer price")+"</p>"+
+(photos.length?"<div class=\"thumbs\">"+photos.map(p=>"<img alt=\"Auction photo\" src=\""+p.url+"\">").join("")+"</div>":"")+
+eqHtml+"<p style=\"margin:12px 0 0\"><b>Damage"+(dm.severity?" ("+esc(dm.severity)+(dm.structural?", possible structural":"")+")":"")+":</b> "+esc(dm.summary||"No damage details returned.")+"</p>"+(v.notes?"<p class=\"hint\">"+esc(v.notes)+"</p>":"")+"</div>"+
+"<div class=\"card\"><h2>Price to land the car in Lithuania</h2><div class=\"scroll\"><table style=\"min-width:320px\"><tbody>"+cost+"</tbody><tfoot><tr><td>Total before repair</td><td class=\"n\">"+eur(L.total)+"</td></tr></tfoot></table></div></div>"+
+"<div class=\"card\"><h2>Repair estimate</h2><div class=\"scroll\"><table><thead><tr><th>Item</th><th class=\"n\">Original parts</th><th class=\"n\">Non-original parts</th><th class=\"n\">Labor and paint</th><th class=\"n\">Find the part</th></tr></thead><tbody>"+rows+"</tbody><tfoot><tr><td>Total with labor</td><td class=\"n\">"+eur(rO)+"</td><td class=\"n\">"+eur(rA)+"</td><td></td><td></td></tr></tfoot></table></div>"+
+"<div class=\"two\"><div class=\"box\"><span>Full cost to road-ready, original parts</span><b>"+eur(tO)+"</b></div><div class=\"box\"><span>Full cost to road-ready, non-original parts</span><b>"+eur(tA)+"</b></div></div>"+
+"<p class=\"hint\">Non-original parts save "+eur(rO-rA)+". Both totals include "+eur(ex)+" for cleaning and other costs. The part links open shopping searches for your car, so confirm the part number with the VIN before buying.</p></div>"+
+cpHtml+"<div class=\"card\"><h2>Cost versus market price</h2><div class=\"ladder\">"+bars+"</div>"+
+"<div class=\"two\"><div class=\"box\"><span>Buyer pays "+eur(ask)+" instead of "+eur(ref)+" retail</span><b>Saves "+eur(ref-ask)+"</b></div><div class=\"box\"><span>Autoplius range / Mobile.de range</span><b style=\"font-size:16px\">"+eur(n(ap.low))+" to "+eur(n(ap.high))+" / "+eur(n(md.low))+" to "+eur(n(md.high))+"</b></div></div>"+
+"<div class=\"tag\"><span>Your profit at the suggested asking price</span><b>"+gp(tO)+" to "+gp(tA)+"</b><small>original parts to non-original parts, at "+eur(ask)+"</small></div>"+
+(st==="live"?"<div class=\"tag\"><span>Highest price to bid for the car, no fees, to still earn "+eur(sv("target"))+"</span><b>"+usd(maxBid(rO))+" to "+usd(maxBid(rA))+"</b><small>original parts to non-original parts. Your current price is "+usd(price)+".</small></div>":"")+
+(d.notes?"<p class=\"hint\">"+esc(d.notes)+"</p>":"")+
+"</div>";
+}
+$("go").onclick=run;
+</script>
+</body>
+</html>

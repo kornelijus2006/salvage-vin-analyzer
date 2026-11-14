@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salvage Flip Calculator</title>
+<style>
+:root{--bg:#e8ecef;--card:#fff;--ink:#14202b;--mute:#5d6b77;--line:#d3dae0;--field:#f3f6f8;--tag:#f2b705;--tagink:#241c00;--good:#146c3f;--goodbg:#d8f1e3;--warn:#8a5a00;--warnbg:#fbecc4;--bad:#a4231b;--badbg:#f9d9d6;--c1:#2563eb;--c2:#0d9488;--c3:#d97706;--c4:#7c3aed;--c5:#64748b;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151b;--card:#17202a;--ink:#e8edf1;--mute:#93a1ad;--line:#2a3641;--field:#101820;--good:#6ee7a0;--goodbg:#12301f;--warn:#fcd34d;--warnbg:#3a2c08;--bad:#fca5a0;--badbg:#3b1512;--c1:#60a5fa;--c2:#2dd4bf;--c3:#fbbf24;--c4:#a78bfa;--c5:#94a3b8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f151b;--card:#17202a;--ink:#e8edf1;--mute:#93a1ad;--line:#2a3641;--field:#101820;--good:#6ee7a0;--goodbg:#12301f;--warn:#fcd34d;--warnbg:#3a2c08;--bad:#fca5a0;--badbg:#3b1512;--c1:#60a5fa;--c2:#2dd4bf;--c3:#fbbf24;--c4:#a78bfa;--c5:#94a3b8;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 16px 48px}
+h1{font-size:26px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 20px;max-width:62ch}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:1.05fr .95fr;align-items:start}.res{position:sticky;top:16px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid>div>.card:last-child{margin-bottom:0}
+.card h2{font-size:16px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.f{display:flex;flex-direction:column;gap:4px}
+.f.full{grid-column:1/-1}
+.f label{font-size:13px;color:var(--mute)}
+input[type=number],input[type=text]{font:inherit;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink)}
+input:focus-visible,button:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+.pill{display:inline-block;font-weight:700;font-size:22px;padding:8px 16px;border-radius:8px;margin-bottom:12px}
+.pill.good{background:var(--goodbg);color:var(--good)}
+.pill.warn{background:var(--warnbg);color:var(--warn)}
+.pill.bad{background:var(--badbg);color:var(--bad)}
+.carname{color:var(--mute);margin:0 0 12px;overflow-wrap:anywhere}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.m{border:1px solid var(--line);border-radius:8px;padding:10px}
+.m span{display:block;font-size:12px;color:var(--mute)}
+.m b{font-size:19px}
+.tag{background:var(--tag);color:var(--tagink);border-radius:10px;padding:14px 16px;margin-bottom:16px;position:relative}
+.tag span{display:block;font-size:13px;font-weight:600}
+.tag b{font-size:32px;line-height:1.15;letter-spacing:-.01em}
+.tag small{display:block;font-size:12.5px;margin-top:2px}
+h3{font-size:14px;margin:16px 0 8px}
+.bar{display:flex;height:16px;border-radius:6px;overflow:hidden;background:var(--field)}
+.bar i{display:block;height:100%}
+.leg{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:4px;font-size:13px}
+.leg li{display:flex;align-items:center;gap:8px}
+.leg em{width:10px;height:10px;border-radius:3px;flex:none}
+.leg span{margin-left:auto;font-weight:600}
+.sl{margin-bottom:10px}
+.sl label{display:flex;justify-content:space-between;font-size:13px;color:var(--mute)}
+.sl input{width:100%}
+.stress{border:1px dashed var(--line);border-radius:8px;padding:10px;font-size:14px}
+button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:var(--ink);color:var(--bg)}
+button.ghost{background:transparent;color:var(--mute);border:1px solid var(--line);padding:5px 9px;font-weight:500;font-size:13px}
+#save{width:100%;margin-top:14px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12.5px;color:var(--mute);font-weight:600}
+td.name{white-space:normal;min-width:160px;overflow-wrap:anywhere}
+.v{font-weight:700}.v.good{color:var(--good)}.v.warn{color:var(--warn)}.v.bad{color:var(--bad)}
+.empty{color:var(--mute);margin:0}
+.note{color:var(--mute);font-size:12.5px;margin:14px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Salvage Flip Calculator</h1>
+  <p class="sub">Enter a Copart or IAAI car and every cost between the auction and the sale. See if it’s a good flip and the highest bid you can place.</p>
+  <div class="grid">
+    <div id="form"></div>
+    <div>
+      <div class="card res" aria-live="polite">
+        <div id="verdict" class="pill"></div>
+        <p id="carname" class="carname"></p>
+        <div class="metrics" id="metrics"></div>
+        <div class="tag"><span>Maximum bid for your target profit</span><b id="maxbid"></b><small id="maxnote"></small></div>
+        <h3>Where the money goes</h3>
+        <div class="bar" id="bar" role="img" aria-label="Cost breakdown"></div>
+        <ul class="leg" id="leg"></ul>
+        <h3>What if it goes wrong?</h3>
+        <div class="stress">
+          <div class="sl"><label for="ro">Repairs cost more by <b id="rov">20%</b></label><input type="range" id="ro" min="0" max="60" value="20"></div>
+          <div class="sl"><label for="pc">Selling price changes by <b id="pcv">-5%</b></label><input type="range" id="pc" min="-25" max="15" value="-5"></div>
+          <div id="stressout"></div>
+        </div>
+        <button id="save">Save to comparison</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Compare saved cars</h2>
+    <div id="cmp"></div>
+  </div>
+  <p class="note">Estimates only. Check customs duty, VAT and registration costs for your country with your customs broker. Resale VAT is not included.</p>
+</div>
+<script>
+const S=[
+["Car",[["name","Car and damage","2019 Toyota Camry, front damage","text"]]],
+["Auction (Copart or IAAI)",[["bid","Winning bid (€)",3000],["feePct","Buyer fee (% of bid)",10],["fixed","Gate, bid and other fixed fees (€)",600]]],
+["Shipping to Europe",[["inland","US inland transport (€)",450],["freight","Ocean freight (€)",1100],["ins","Shipping insurance (€)",100],["port","Port and forwarder fees (€)",300]]],
+["Import taxes",[["duty","Customs duty (%)",10],["vat","VAT (%)",21]]],
+["Local costs",[["local","Transport from port (€)",250],["reg","Registration and inspection (€)",400]]],
+["Repair and prep",[["repair","Repair estimate (€)",2800],["buf","Repair buffer (%)",15],["other","Cleaning, ads and other (€)",200]]],
+["Selling",[["price","Expected selling price (€)",14500],["target","Target profit (€)",1500]]]
+];
+const $=id=>document.getElementById(id);
+const eur=n=>new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
+const pc=n=>(isFinite(n)?(n*100).toFixed(1):"0.0")+"%";
+const form=$("form");
+S.forEach(([t,fs])=>{
+  const c=document.createElement("div");c.className="card";
+  c.innerHTML="<h2>"+t+"</h2><div class=\"row\"></div>";
+  const r=c.querySelector(".row");
+  fs.forEach(([id,l,d,ty])=>{
+    const f=document.createElement("div");f.className="f"+(ty?" full":"");
+    f.innerHTML="<label for=\""+id+"\">"+l+"</label><input id=\""+id+"\" type=\""+(ty||"number")+"\" value=\""+d+"\""+(ty?"":" inputmode=\"decimal\" min=\"0\" step=\"any\"")+">";
+    r.appendChild(f);
+  });
+  form.appendChild(c);
+});
+const num=id=>Math.max(0,parseFloat($(id).value)||0);
+function calc(v,rm,pm){
+  const a=1+v.feePct/100,F=v.fixed+v.inland+v.freight+v.ins+v.port;
+  const CV=a*v.bid+F,m=(1+v.duty/100)*(1+v.vat/100);
+  const rep=v.repair*(1+v.buf/100)*rm,L=v.local+v.reg+rep+v.other;
+  const total=CV*m+L,price=v.price*pm,profit=price-total;
+  return{a,F,CV,m,L,rep,total,price,profit,roi:total?profit/total:0,margin:price?profit/price:0};
+}
+function read(){const v={};S.forEach(([,fs])=>fs.forEach(([id,,,ty])=>{v[id]=ty?$(id).value.trim():num(id)}));return v}
+function verdict(p,t){return p>=t?["Good flip","good"]:p>0?["Risky","warn"]:["Skip","bad"]}
+let saved=[];
+try{saved=JSON.parse(localStorage.getItem("sfc-saved")||"[]")}catch(e){saved=[]}
+function render(){
+  const v=read(),r=calc(v,1,1),[vt,vc]=verdict(r.profit,v.target);
+  $("verdict").textContent=vt;$("verdict").className="pill "+vc;
+  $("carname").textContent=v.name||"Unnamed car";
+  $("metrics").innerHTML=[["Total cost",eur(r.total)],["Profit",eur(r.profit)],["Margin",pc(r.margin)],["Return on cost",pc(r.roi)]].map(x=>"<div class=\"m\"><span>"+x[0]+"</span><b>"+x[1]+"</b></div>").join("");
+  const mb=((v.price-v.target-r.L)/r.m-r.F)/r.a;
+  if(mb>0){$("maxbid").textContent=eur(mb);$("maxnote").textContent=mb>=v.bid?"Your bid of "+eur(v.bid)+" is "+eur(mb-v.bid)+" under the limit.":"Your bid of "+eur(v.bid)+" is "+eur(v.bid-mb)+" over the limit.";}
+  else{$("maxbid").textContent="No safe bid";$("maxnote").textContent="Costs and target profit exceed the selling price.";}
+  const parts=[["Auction price and fees",r.a*v.bid+v.fixed,"--c1"],["Shipping and port",v.inland+v.freight+v.ins+v.port,"--c2"],["Duty and VAT",r.CV*(r.m-1),"--c3"],["Local costs",v.local+v.reg,"--c4"],["Repairs and other",r.rep+v.other,"--c5"]];
+  $("bar").innerHTML=parts.map(p=>"<i style=\"width:"+(r.total?p[1]/r.total*100:0)+"%;background:var("+p[2]+")\"></i>").join("");
+  $("leg").innerHTML=parts.map(p=>"<li><em style=\"background:var("+p[2]+")\"></em>"+p[0]+"<span>"+eur(p[1])+"</span></li>").join("");
+  const ro=+$("ro").value,pcg=+$("pc").value;
+  $("rov").textContent="+"+ro+"%";$("pcv").textContent=(pcg>0?"+":"")+pcg+"%";
+  const s=calc(v,1+ro/100,1+pcg/100),[sv,sc]=verdict(s.profit,v.target);
+  $("stressout").innerHTML="Profit would be <b>"+eur(s.profit)+"</b> and the verdict <span class=\"v "+sc+"\">"+sv+"</span>.";
+  return{v,r,vt,vc};
+}
+function renderCmp(){
+  const box=$("cmp");
+  if(!saved.length){box.innerHTML="<p class=\"empty\">Nothing saved yet. Fill in a car above and choose Save to comparison.</p>";return}
+  const t=document.createElement("table");
+  t.innerHTML="<thead><tr><th>Car</th><th>Total cost</th><th>Selling price</th><th>Profit</th><th>Margin</th><th>Verdict</th><th></th></tr></thead>";
+  const tb=document.createElement("tbody");
+  saved.forEach((s,i)=>{
+    const tr=document.createElement("tr");
+    const n=document.createElement("td");n.className="name";n.textContent=s.name;tr.appendChild(n);
+    [eur(s.total),eur(s.price),eur(s.profit),pc(s.margin)].forEach(x=>{const d=document.createElement("td");d.textContent=x;tr.appendChild(d)});
+    const vd=document.createElement("td");vd.className="v "+s.vc;vd.textContent=s.vt;tr.appendChild(vd);
+    const rd=document.createElement("td"),b=document.createElement("button");b.className="ghost";b.textContent="Remove";
+    b.onclick=()=>{saved.splice(i,1);persist();renderCmp()};rd.appendChild(b);tr.appendChild(rd);tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  const w=document.createElement("div");w.className="scroll";w.appendChild(t);box.innerHTML="";box.appendChild(w);
+}
+function persist(){try{localStorage.setItem("sfc-saved",JSON.stringify(saved))}catch(e){}}
+$("save").onclick=()=>{
+  const{v,r,vt,vc}=render();
+  saved.push({name:v.name||"Unnamed car",total:r.total,price:r.price,profit:r.profit,margin:r.margin,vt,vc});
+  persist();renderCmp();
+};
+document.addEventListener("input",render);
+render();renderCmp();
+</script>
+</body>
+</html>
